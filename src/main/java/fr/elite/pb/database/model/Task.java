@@ -14,6 +14,7 @@ public class Task {
     private Date deadline;
     private double timeToComplete;
     private String state;
+    private List<Date> alarms;
 
     public String getTitle() {
         return title;
@@ -79,6 +80,14 @@ public class Task {
         this.state = state;
     }
 
+    public List<Date> getAlarms() {
+        return alarms;
+    }
+
+    public void setAlarms(List<Date> alarms) {
+        this.alarms = alarms;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -91,12 +100,13 @@ public class Task {
                 Objects.equals(description, task.description) &&
                 Objects.equals(creationDate, task.creationDate) &&
                 Objects.equals(deadline, task.deadline) &&
-                Objects.equals(state, task.state);
+                Objects.equals(state, task.state) &&
+                Objects.equals(alarms, task.alarms);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, mainMemberName, otherMembers, description, creationDate, deadline, timeToComplete, state);
+        return Objects.hash(title, mainMemberName, otherMembers, description, creationDate, deadline, timeToComplete, state, alarms);
     }
 
     @Override
@@ -110,6 +120,7 @@ public class Task {
                 ", deadline=" + deadline +
                 ", timeToComplete=" + timeToComplete +
                 ", state='" + state + '\'' +
+                ", alarms=" + alarms +
                 '}';
     }
 }

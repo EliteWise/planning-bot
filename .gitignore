@@ -1,0 +1,8 @@
+# project files
+config.json
+
+# intellij files
+/.idea/
+*.iml
+*.ipr
+*.iws
