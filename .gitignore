@@ -1,5 +1,5 @@
 # project files
-config.json
+src/main/resources/config.json
 
 # intellij files
 /.idea/
