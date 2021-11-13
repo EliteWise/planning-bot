@@ -17,9 +17,7 @@ import org.bson.conversions.Bson;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
@@ -90,16 +88,30 @@ public class MongoRequest {
         return channelCollection.find(Filters.eq("guildID", guildID)).first().getChannelID();
     }
 
-    public List<Statistic> getStats() {
-        List<Statistic> stats = new ArrayList<>();
+    public Set<Statistic> getStats() {
+        Set<Statistic> stats = new LinkedHashSet<>();
         List<Task> tasks = taskCollection.find().into(new ArrayList<>());
 
-        tasks.stream().filter(task -> task.getState().equals(TaskState.IN_PROGRESS.name().replace("_", " "))).collect(Collectors.groupingBy(Task::getMainMemberName))
+        tasks.stream().filter(task -> task.getState().equals(TaskState.IN_PROGRESS.name())).collect(Collectors.groupingBy(Task::getMainMemberName))
                 .forEach((k, v) -> {
                     Statistic statistic = new Statistic();
                     statistic.setPseudo(k); statistic.setTaskInProgress(v.size());
                     stats.add(statistic);
                 });
+
+        tasks.stream().filter(task -> task.getState().equals(TaskState.DONE.name())).collect(Collectors.groupingBy(Task::getMainMemberName))
+                .forEach((k, v) -> {
+                    Statistic statistic = new Statistic();
+                    statistic.setPseudo(k); statistic.setTaskCompleted(v.size());
+                    stats.stream().filter(s -> s.getPseudo().equalsIgnoreCase(k)).forEach(t -> t.setTaskCompleted(v.size()));
+                    stats.add(statistic);
+                });
+
         return stats;
     }
+
+    public List<Task> getTasks() {
+        return taskCollection.find().into(new ArrayList<>());
+    }
+
 }

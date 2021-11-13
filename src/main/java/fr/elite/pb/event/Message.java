@@ -50,9 +50,10 @@ public class Message extends ListenerAdapter {
         if(message.getContentRaw().equalsIgnoreCase("!p help")) {
             EmbedBuilder eb = new EmbedBuilder();
             List<MessageEmbed.Field> fields = new ArrayList<>(
-                    Arrays.asList(new MessageEmbed.Field("`!p board`", "*Display the board*", false),
-                                  new MessageEmbed.Field("`!p board add <Pseudo>`", "*Add a member to the board*", false),
-                                  new MessageEmbed.Field("`!p board remove <Pseudo>`", "*Remove a member to the board*", false))
+                    Arrays.asList(new MessageEmbed.Field("`!p link`", "*Link the bot to a channel*", false),
+                                  new MessageEmbed.Field("`!p board`", "*Display the board*", false),
+                                  new MessageEmbed.Field("`!p add <Pseudo>`", "*Add a member to the board*", false),
+                                  new MessageEmbed.Field("`!p stats", "*Display members stats*", false))
             );
             new Embed(eb, "Planning Help", Color.CYAN, fields, OffsetDateTime.now(Clock.systemUTC())).build(channel);
         } else if(message.getContentRaw().contains("!p add") && state == 0 && !message.getAuthor().isBot()) {
@@ -62,6 +63,9 @@ public class Message extends ListenerAdapter {
 
                 task = new Task();
                 task.setMainMemberName(message.getContentRaw().split(" ")[2]);
+                task.setMainMemberId(e.getGuild().getMembers().stream().filter(member -> member.getEffectiveName().equalsIgnoreCase(message.getContentRaw().split(" ")[2])).findFirst().get().getId());
+
+                log.info(task.getMainMemberId());
 
                 channel.sendMessage("Type the title: ").queue((response) ->
                     state++
@@ -96,7 +100,7 @@ public class Message extends ListenerAdapter {
                 MessageEmbed.Field field = new MessageEmbed.Field(task.getTitle(), task.getDescription(), true);
                 eb.clear();
 
-                new Embed(eb, task.getMainMemberName(), field, task.getDeadline(), task.getTimeToComplete(), task.getState()).build(channel);
+                new Embed(eb, task.getMainMemberName(), field, task.getDeadline(), task.getTimeToComplete(), task.getState()).buildTask(channel);
                 log.info(mongoRequest.getMembers().get(i) + "");
             }
         } else if(message.getContentRaw().equalsIgnoreCase("!p link")) {
@@ -114,7 +118,9 @@ public class Message extends ListenerAdapter {
         } else if(message.getContentRaw().equalsIgnoreCase("!p stats")) {
             try {
                 MongoRequest mongoRequest = new MongoRequest();
-                List<Statistic> stats = mongoRequest.getStats();
+                mongoRequest.getTasks();
+
+                Set<Statistic> stats = mongoRequest.getStats();
 
                 List<MessageEmbed.Field> fields = new ArrayList<>();
 
@@ -166,7 +172,7 @@ public class Message extends ListenerAdapter {
                         mongoRequest.addTask(task);
 
                         new Embed(new EmbedBuilder(), task.getMainMemberName(), new MessageEmbed.Field(task.getTitle(), task.getDescription(), true), task.getDeadline(), task.getTimeToComplete(), task.getState())
-                                .build(channel.getGuild().getTextChannelById(mongoRequest.getChannel(channel.getGuild().getId())));
+                                .buildTask(channel.getGuild().getTextChannelById(mongoRequest.getChannel(channel.getGuild().getId())));
 
                     } catch (ParseException ex) {
                         ex.printStackTrace();
@@ -182,11 +188,14 @@ public class Message extends ListenerAdapter {
             try {
                 MongoRequest mongoRequest = new MongoRequest();
 
-                List<Date> alarms = mongoRequest.getAlarmsByTask(alarmTask);
+                System.out.println(alarmTask);
+
+                List<Date> alarms = mongoRequest.getAlarmsByTask(alarmTask) == null ? new ArrayList<>() : mongoRequest.getAlarmsByTask(alarmTask);
                 String msg = message.getContentRaw();
                 message.delete().queue();
 
                 Date date = new GregorianCalendar(Integer.parseInt(msg.split("/")[2]), Integer.parseInt(msg.split("/")[1]) -1, Integer.parseInt(msg.split("/")[0])).getTime();
+                log.info("Date added: " + date);
                 alarms.add(date);
 
                 alarmTask.setAlarms(alarms);

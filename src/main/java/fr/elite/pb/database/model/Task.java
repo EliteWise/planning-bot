@@ -7,6 +7,7 @@ import java.util.Objects;
 public class Task {
 
     private String title;
+    private String mainMemberId;
     private String mainMemberName;
     private List<String> otherMembers;
     private String description;
@@ -22,6 +23,14 @@ public class Task {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getMainMemberId() {
+        return mainMemberId;
+    }
+
+    public void setMainMemberId(String mainMemberId) {
+        this.mainMemberId = mainMemberId;
     }
 
     public String getMainMemberName() {
@@ -95,6 +104,7 @@ public class Task {
         Task task = (Task) o;
         return Double.compare(task.timeToComplete, timeToComplete) == 0 &&
                 Objects.equals(title, task.title) &&
+                Objects.equals(mainMemberId, task.mainMemberId) &&
                 Objects.equals(mainMemberName, task.mainMemberName) &&
                 Objects.equals(otherMembers, task.otherMembers) &&
                 Objects.equals(description, task.description) &&
@@ -106,13 +116,14 @@ public class Task {
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, mainMemberName, otherMembers, description, creationDate, deadline, timeToComplete, state, alarms);
+        return Objects.hash(title, mainMemberId, mainMemberName, otherMembers, description, creationDate, deadline, timeToComplete, state, alarms);
     }
 
     @Override
     public String toString() {
         return "Task{" +
                 "title='" + title + '\'' +
+                ", mainMemberId='" + mainMemberId + '\'' +
                 ", mainMemberName='" + mainMemberName + '\'' +
                 ", otherMembers=" + otherMembers +
                 ", description='" + description + '\'' +
