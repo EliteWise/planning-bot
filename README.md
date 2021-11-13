@@ -2,7 +2,7 @@
 
 ## Commands:
 
-!p help > Used to display help commands
+!p help > Used to display the planning commands
 
 !p link > To link a channel with the planning bot
 
